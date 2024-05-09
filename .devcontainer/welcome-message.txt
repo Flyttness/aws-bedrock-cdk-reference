@@ -1,0 +1,39 @@
+👋 Welcome to the Flyttness Copilot + Codespaces Experience!
+
+The default Microsoft Universal DevContainer image is used, providing language runtimes for
+Python, Node, PHP, Java, Go, C++, Ruby, and .NET Core/C#.
+
+The container includes the zsh (and Oh My Zsh!) and fish shells that you can opt into
+using instead of the default bash. It also includes nvm, rvm, rbenv, and SDKMAN! if
+you need to install a different version Node, Ruby, or Java tools than the container
+defaults.
+
+This Codespaces environments has been setup with the following additional development tools:
+
+- AWS CLI v2
+- AWS CDK
+- aws-cloudformation/rain: https://github.com/aws-cloudformation/rain
+- granted: https://docs.commonfate.io/granted/introduction
+
+The AWS CLI is pre-configured to work with the Cymonz Non-Prod AWS Account.
+
+Use this command to authenticate with AWS SSO the first time:
+> aws sso login
+
+In addition the following Visual Studio plugins have been pre-installed:
+
+- GitHub Copilot
+- GitHub Copilot Chat
+- EditorConfig for VS Code
+- indent-rainbox
+- Indenticator
+- Markdown Preview Enhanced
+- markdownlint
+- Prettier - Code formatter
+- shell-format
+- Sort lines
+- YAML
+
+Happy coding.
+
+Crafted with care by flyttness.ai (c) 2024

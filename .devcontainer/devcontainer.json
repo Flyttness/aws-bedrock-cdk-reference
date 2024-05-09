@@ -1,0 +1,29 @@
+{
+	"name": "Universal",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"VARIANT": "2"
+		}
+	},
+	"postCreateCommand": ".devcontainer/postCreate.sh",
+    "features": {
+        "ghcr.io/devcontainers-contrib/features/aws-cdk:2": {}
+    },
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"github.copilot",
+				"editorconfig.editorconfig",
+				"oderwat.indent-rainbow",
+				"sirtori.indenticator",
+				"shd101wyy.markdown-preview-enhanced",
+				"esbenp.prettier-vscode",
+				"davidanson.vscode-markdownlint",
+				"foxundermoon.shell-format",
+				"tyriar.sort-lines",
+				"redhat.vscode-yaml"
+			]
+		}
+	}
+}

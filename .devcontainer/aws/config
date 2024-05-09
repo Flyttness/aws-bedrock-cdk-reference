@@ -1,0 +1,9 @@
+[default]
+sso_session = flyttness
+sso_account_id = 885890946361
+sso_role_name = AdministratorAccess
+region = ap-southeast-2
+[sso-session flyttness]
+sso_start_url = https://flyttness.awsapps.com/start/
+sso_region = ap-southeast-2
+sso_registration_scopes = sso:account:access
