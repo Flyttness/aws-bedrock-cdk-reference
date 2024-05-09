@@ -101,23 +101,23 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       knowledgeBases: [kb],
       shouldPrepareAgent: true,
       aliasName: 'latest',
-      // promptOverrideConfiguration: {
-      //   promptConfigurations: [
-      //     {
-      //       promptType: bedrock.PromptType.ORCHESTRATION,
-      //       basePromptTemplate: orchestration,
-      //       promptState: bedrock.PromptState.ENABLED,
-      //       promptCreationMode:  bedrock.PromptCreationMode.OVERRIDDEN,
-      //       inferenceConfiguration: {
-      //         temperature:  0.0,
-      //         topP: 1,
-      //         topK: 250,
-      //         maximumLength: 2048,
-      //         stopSequences: ['</invoke>', '</answer>', '</error>'],
-      //       },
-      //     },
-      //   ]
-      // }
+      promptOverrideConfiguration: {
+        promptConfigurations: [
+          {
+            promptType: bedrock.PromptType.ORCHESTRATION,
+            basePromptTemplate: orchestration,
+            promptState: bedrock.PromptState.ENABLED,
+            promptCreationMode:  bedrock.PromptCreationMode.OVERRIDDEN,
+            inferenceConfiguration: {
+              temperature:  0.0,
+              topP: 1,
+              topK: 250,
+              maximumLength: 2048,
+              stopSequences: ['</function_call>','</invoke>', '</answer>', '</error>'],
+            },
+          },
+        ]
+      }
     });
     tags.forEach(tag => {
       cdk.Tags.of(agent).add(tag.key, tag.value);
