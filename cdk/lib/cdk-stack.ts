@@ -51,7 +51,7 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
     const kb = new bedrock.KnowledgeBase(this, 'KnowledgeBase', {
       embeddingsModel: bedrock.BedrockFoundationModel.TITAN_EMBED_TEXT_V1,
       description: 'FOMC (Federal Open Market Committee) reports',
-      instruction: 'Use this knowledge base to answer questions about Federal Open Market Committee reports. ',
+      instruction: 'Use this knowledge base when a user asks about data, such as economic trends, company financial statements, or the outcomes of the Federal Open Market Committee meetings.',
     });
     tags.forEach(tag => {
       cdk.Tags.of(kb).add(tag.key, tag.value);
@@ -98,7 +98,9 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       description: 'Agent that creates investment portfolios, researches companies, summarizes documents, and formats emails.',
       foundationModel: bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_INSTANT_V1_2,
       instruction: agentInstruction,
-      knowledgeBases: [kb]
+      knowledgeBases: [kb],
+      shouldPrepareAgent: true,
+      aliasName: 'latest',
       // promptOverrideConfiguration: {
       //   promptConfigurations: [
       //     {
