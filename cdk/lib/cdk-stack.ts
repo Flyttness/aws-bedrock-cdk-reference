@@ -6,6 +6,7 @@ import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as lambda_python from '@aws-cdk/aws-lambda-python-alpha';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
+import { readFileSync } from 'fs';
 
 export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -21,9 +22,9 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       { key: 'Documentation', value: 'https://github.com/build-on-aws/bedrock-agents-streamlit/blob/main/README.md'},
     ]
 
-    // tags.forEach(tag => {
-    //   cdk.Tags.of(this).add(tag.key, tag.value);
-    // });
+    tags.forEach(tag => {
+      cdk.Tags.of(this).add(tag.key, tag.value);
+    });
 
     // Create the S3 bucket to store the knowledge base
     const bucket = new s3.Bucket(this, 'KnowledgeBaseBucket', {
@@ -52,9 +53,9 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       description: 'FOMC (Federal Open Market Committee) reports',
       instruction: 'Use this knowledge base to answer questions about Federal Open Market Committee reports. ',
     });
-    // tags.forEach(tag => {
-    //   cdk.Tags.of(kbBedrock).add(tag.key, tag.value);
-    // });
+    tags.forEach(tag => {
+      cdk.Tags.of(kb).add(tag.key, tag.value);
+    });
 
     const dataSource = new bedrock.S3DataSource(this, 'DataSource', {
       bucket: bucket,
@@ -70,28 +71,50 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.PYTHON_3_12,
       index: 'lambda.py'
     });
+    tags.forEach(tag => {
+      cdk.Tags.of(actionGroupFunction).add(tag.key, tag.value);
+    });
+
 
     // create the agent
     const agentInstruction =
     `Role: You are an investment analyst responsible for creating portfolios, researching companies, summarizing documents, and formatting emails.
 Objective: Assist in investment analysis by generating company portfolios, providing research summaries, and facilitating communication through formatted emails.
 1. Portfolio Creation:
-    Understand the Query: Analyze the user's request to extract key information such as the desired number of companies and industry.
-    Generate Portfolio: Based on the criteria from the request, create a portfolio of companies. Use the template provided to format the portfolio.
+  Understand the Query: Analyze the user's request to extract key information such as the desired number of companies and industry.
+  Generate Portfolio: Based on the criteria from the request, create a portfolio of companies. Use the template provided to format the portfolio.
 2. Company Research and Document Summarization:
-    Research Companies: For each company in the portfolio, conduct detailed research to gather relevant financial and operational data.
-    Summarize Documents: When a document, like the FOMC report, is mentioned, retrieve the document and provide a concise summary.
+  Research Companies: For each company in the portfolio, conduct detailed research to gather relevant financial and operational data.
+  Summarize Documents: When a document, like the FOMC report, is mentioned, retrieve the document and provide a concise summary.
 3. Email Communication:
-    Format Email: Using the email template provided, format an email that includes the newly created company portfolio and any summaries of important documents.
-    Send Email: Utilize the provided tools to send an email upon request, That includes a summary of provided responses and and portfolios created.`
+  Format Email: Using the email template provided, format an email that includes the newly created company portfolio and any summaries of important documents.
+  Send Email: Utilize the provided tools to send an email upon request, That includes a summary of provided responses and and portfolios created.`
+
+    const orchestration = readFileSync('../bedrock/prompts/orchestration.txt', 'utf-8');
 
     const agent = new bedrock.Agent(this, 'Agent', {
       name: `PortfolioCreator-${githubUsername}`,
       description: 'Agent that creates investment portfolios, researches companies, summarizes documents, and formats emails.',
       foundationModel: bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_INSTANT_V1_2,
       instruction: agentInstruction,
-      knowledgeBases: [kb],
-      // promptOverrideConfiguration: 
+      knowledgeBases: [kb]
+      // promptOverrideConfiguration: {
+      //   promptConfigurations: [
+      //     {
+      //       promptType: bedrock.PromptType.ORCHESTRATION,
+      //       basePromptTemplate: orchestration,
+      //       promptState: bedrock.PromptState.ENABLED,
+      //       promptCreationMode:  bedrock.PromptCreationMode.OVERRIDDEN,
+      //       inferenceConfiguration: {
+      //         temperature:  0.0,
+      //         topP: 1,
+      //         topK: 250,
+      //         maximumLength: 2048,
+      //         stopSequences: ['</invoke>', '</answer>', '</error>'],
+      //       },
+      //     },
+      //   ]
+      // }
     });
     tags.forEach(tag => {
       cdk.Tags.of(agent).add(tag.key, tag.value);
