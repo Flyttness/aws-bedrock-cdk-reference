@@ -69,7 +69,8 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       entry: path.join(__dirname, '../lambda/action-group'),
       functionName: `PortfolioCreator-actions-${githubUsername}`,
       runtime: lambda.Runtime.PYTHON_3_12,
-      index: 'lambda.py'
+      index: 'lambda.py',
+      handler: 'lambda_handler'
     });
     tags.forEach(tag => {
       cdk.Tags.of(actionGroupFunction).add(tag.key, tag.value);
@@ -78,19 +79,6 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
 
     // create the agent
     const agentInstruction = readFileSync('../bedrock/prompts/agent.txt', 'utf-8');
-//     const agentInstruction =
-//     `Role: You are an investment analyst responsible for creating portfolios, researching companies, summarizing documents, and formatting emails.
-// Objective: Assist in investment analysis by generating company portfolios, providing research summaries, and facilitating communication through formatted emails.
-// 1. Portfolio Creation:
-//   Understand the Query: Analyze the user's request to extract key information such as the desired number of companies and industry.
-//   Generate Portfolio: Based on the criteria from the request, create a portfolio of companies. Use the template provided to format the portfolio.
-// 2. Company Research and Document Summarization:
-//   Research Companies: For each company in the portfolio, conduct detailed research to gather relevant financial and operational data.
-//   Summarize Documents: When a document, like the FOMC report, is mentioned, retrieve the document and provide a concise summary.
-// 3. Email Communication:
-//   Format Email: Using the email template provided, format an email that includes the newly created company portfolio and any summaries of important documents.
-//   Send Email: Utilize the provided tools to send an email upon request, That includes a summary of provided responses and and portfolios created.`
-
     const orchestration = readFileSync('../bedrock/prompts/orchestration.txt', 'utf-8');
 
     const agent = new bedrock.Agent(this, 'Agent', {
@@ -100,7 +88,6 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       instruction: agentInstruction,
       knowledgeBases: [kb],
       shouldPrepareAgent: true,
-      aliasName: 'latest',
       promptOverrideConfiguration: {
         promptConfigurations: [
           {
@@ -132,7 +119,14 @@ export class BedrockReferenceArchitectureCdkStack extends cdk.Stack {
       apiSchema: bedrock.ApiSchema.fromAsset(path.join(__dirname, '../lambda/action-group/openApiSpec.yaml')),
     });
 
+    // Add Agent prod alias
+    const alias = agent.addAlias({
+      aliasName: 'prod',
+      agentVersion: '1',
+    });
+    
     new cdk.CfnOutput(this, 'AgentId', {value: agent.agentId});
+    new cdk.CfnOutput(this, 'AgentAliasId', {value: alias.aliasId});
     new cdk.CfnOutput(this, 'KnowledgeBaseId', {value: kb.knowledgeBaseId});
     new cdk.CfnOutput(this, 'DataSourceId', {value: dataSource.dataSourceId});
     new cdk.CfnOutput(this, 'DocumentBucket', {value: bucket.bucketName});

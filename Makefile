@@ -1,15 +1,59 @@
 # ------------------------------------------------------------------------
-# Sample Make Targets
+# AWS CDK Targets
 # ------------------------------------------------------------------------
 
-sample-cfn-deployment-target: ## Target title
+# Deploying stacks with the CDK requires special dedicated AWS CDK resources 
+# to be provisioned. The cdk bootstrap command creates the necessary resources 
+# for you.
+bootstrap: ## Bootstrap CDK stack
 	@./scripts/banner.sh
-	@echo -e "[${GREEN}INFO${NC}] - Target title"
-	@rain deploy --region us-east-1 ./example.cfn.yml
+	@echo -e "[${GREEN}INFO${NC}] - Bootstrap CDK stack"
+	@cd cdk && cdk bootstrap
+
+# To see a list of the IDs of the stacks in your AWS CDK application
+list: ## List CDK stack
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - List CDK stack"
+	@cd cdk && cdk list
+
+# Synthesizes a stack defined in your app into a CloudFormation template
+synth: ## Synth CDK stack
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - Synth CDK stack"
+	@cd cdk && cdk synth
+
+# Deploys stack to your AWS account
+deploy-no-approval-no-rollback: ## Deploy CDK stack without approval and rollback
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - Deploy CDK stack without approval"
+	@cd cdk && cdk deploy --no-rollback --require-approval never
+
+deploy-no-rollback: ## Deploy CDK stack with approval and without rollback
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - Deploy CDK stack"
+	@cd cdk && cdk deploy --no-rollback
+
+deploy: ## Deploy CDK stack with approval and rollback
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - Deploy CDK stack"
+	@cd cdk && cdk deploy
+
+# Compares the current version of a stack (and its dependencies) defined in your app 
+# with the already-deployed versions
+diff: ## Diff CDK stack
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - Deploy CDK stack"
+	@cd cdk && cdk diff
 
 # ------------------------------------------------------------------------
 # General Targets
 # ------------------------------------------------------------------------
+
+# Login to the AWS account with AWS SSO credential
+aws-login: ## AWS Login
+	@./scripts/banner.sh
+	@echo -e "[${GREEN}INFO${NC}] - AWS Login"
+	@aws sso login
 
 # https://postd.cc/auto-documented-makefile/
 help: ## Show help

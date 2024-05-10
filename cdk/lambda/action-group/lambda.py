@@ -49,14 +49,19 @@ def lambda_handler(event, context):
     
     def createPortfolio(event, company_data):
         numCompanies = int(get_named_parameter(event, 'numCompanies'))
+        print("numCompanies: ", numCompanies)
         industry = get_named_parameter(event, 'industry').lower()
+        print("industry: ", industry)
 
         industry_filtered_companies = [company for company in company_data
                                         if company['industrySector'].lower() == industry]
+        print("industry_filtered_companies: ", industry_filtered_companies)
 
         sorted_companies = sorted(industry_filtered_companies, key=lambda x: x['profit'], reverse=True)
+        print("sorted_companies: ", sorted_companies)
 
         top_companies = sorted_companies[:numCompanies]
+        print("top_companies: ", top_companies)
         return top_companies
 
     def sendEmail(event, company_data):
